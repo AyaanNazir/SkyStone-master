@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 import java.util.Timer;
 
@@ -16,16 +17,10 @@ public class AutoMain extends LinearOpMode {
     DcMotor[] motors;
 
     @Override
-    public void runOpMode() throws InterruptedException {
+    public void runOpMode() throws InterruptedException { //test for now
         initialize();
-        driveForward(.1, 200);
-        driveForward(.5, -100);
-        driveForward(.1, 2000);
-        driveForward(.5, -100);
-        driveForward(1, 200);
-        driveForward(.5, -100);
-        driveForward(1, 2000);
-        driveForward(.5, -100);
+        driveForward(.3, 2000000000);
+        driveForward(.5, -100000);
     }
 
     public void initialize()
@@ -35,8 +30,11 @@ public class AutoMain extends LinearOpMode {
         leftBottomMotor = hardwareMap.dcMotor.get("leftBottomMotor");
         rightBottomMotor = hardwareMap.dcMotor.get("rightBottomMotor");
         motors = new DcMotor[]{leftTopMotor, rightTopMotor, leftBottomMotor, rightBottomMotor};
-        for(DcMotor motor : motors)
+        for(DcMotor motor : motors) {
             motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            if(motor == leftTopMotor || motor == leftBottomMotor)
+                motor.setDirection(DcMotor.Direction.REVERSE);
+        }
         waitForStart();
     }
 
@@ -49,7 +47,7 @@ public class AutoMain extends LinearOpMode {
             motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             motor.setPower(power);
         }
-        while(leftTopMotor.isBusy() && rightTopMotor.isBusy()){} //needed so next stuff doesn't happen until robot is done moving
+        while(leftTopMotor.isBusy() && rightTopMotor.isBusy()){}
         for(DcMotor motor : motors)
         {
             motor.setPower(0);
