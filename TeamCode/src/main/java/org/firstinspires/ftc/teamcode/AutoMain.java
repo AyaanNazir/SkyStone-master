@@ -34,6 +34,8 @@ public class AutoMain extends LinearOpMode {
             motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             if(motor == leftTopMotor || motor == leftBottomMotor)
                 motor.setDirection(DcMotor.Direction.REVERSE);
+            else
+                motor.setDirection(DcMotor.Direction.FORWARD);
         }
         waitForStart();
     }
