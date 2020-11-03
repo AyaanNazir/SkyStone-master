@@ -4,8 +4,10 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
@@ -13,12 +15,12 @@ import com.qualcomm.robotcore.util.Range;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
-
+@TeleOp
 public class TeleOP extends OpMode {
     private DcMotorEx leftFront, leftBack, rightFront, rightBack, lift;
     private boolean direction, togglePrecision;
     private double factor;
-    private Servo dinesh, kush, saharsh, atul;
+    private Servo dinesh, kush, saharsh, atul; //claw, flicker, unused
     // private Servo[] satul = new Servo[2];
     boolean reverse;
     int reverseFactor;
@@ -51,10 +53,10 @@ public class TeleOP extends OpMode {
         rightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         //Left Motors are in reverse and Right Motors are forward so the robot can move forward
-        leftFront.setDirection(DcMotor.Direction.FORWARD);
-        leftBack.setDirection(DcMotor.Direction.FORWARD);
-        rightFront.setDirection(DcMotor.Direction.REVERSE);
-        rightBack.setDirection(DcMotor.Direction.REVERSE);
+        leftFront.setDirection(DcMotor.Direction.REVERSE);
+        leftBack.setDirection(DcMotor.Direction.REVERSE);
+        rightFront.setDirection(DcMotor.Direction.FORWARD);
+        rightBack.setDirection(DcMotor.Direction.FORWARD);
         saharsh.setDirection(Servo.Direction.FORWARD);
         atul.setDirection(Servo.Direction.REVERSE);
         imu = hardwareMap.get(BNO055IMU.class, "imu");
@@ -62,15 +64,14 @@ public class TeleOP extends OpMode {
         parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
         imu.initialize(parameters);
         runtime = new ElapsedTime();
+        reverse = false;
     }
 
 
     @Override
     public void loop() {
-        if(gamepad1.a && !reverse)
-            reverse = true;
-        else if(reverse && gamepad1.a)
-            reverse = false;
+        if(gamepad1.a)
+            reverse = !reverse;
 
         //toggles precision mode if the right stick button is pressed
         if (gamepad2.right_trigger> .5 || gamepad1.right_trigger> .5)
@@ -81,8 +82,7 @@ public class TeleOP extends OpMode {
         //sets the factor multiplied to the power of the motors
         factor = togglePrecision ? .3 : 1; //the power is 1/5th of its normal value while in precision mode
 
-
-
+        // Do not mess with this, if it works, it works
         double x = Math.hypot(gamepad1.left_stick_x, gamepad1.left_stick_y);
         double stickAngle = Math.atan2(direction ? -gamepad1.left_stick_y : gamepad1.left_stick_y, direction ? gamepad1.left_stick_x : -gamepad1.left_stick_x); // desired robot angle from the angle of stick
         double powerAngle = stickAngle - (Math.PI / 4); // conversion for correct power values
@@ -95,6 +95,7 @@ public class TeleOP extends OpMode {
 
         //move up Kush
 
+        //neutral is .5, right trigger .5 to 1, left trigger is 0 to .5
         if (gamepad2.right_trigger> .5){
 
             kush.setPosition(0);
@@ -113,6 +114,7 @@ public class TeleOP extends OpMode {
             // satul[1].setPosition(1);
         }
 
+        //gamepad 2 dpad is for claw
         if (gamepad2.dpad_up) {
             lift.setPower(1);
         }
@@ -126,11 +128,13 @@ public class TeleOP extends OpMode {
             lift.setPower(0);
         }
         //servodown Kush
+        //closes claw
         if (gamepad2.right_bumper) {
             kush.setPosition(1);
             dinesh.setPosition(0);
         }
         //servoup Kush
+        //opens claw
         else if (gamepad2.left_bumper) {
             kush.setPosition(0);
             dinesh.setPosition(1);
