@@ -3,37 +3,46 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import java.util.Timer;
 
 @Autonomous
 public class AutoMain extends LinearOpMode {
-    private DcMotor leftTopMotor , rightTopMotor, leftBottomMotor, rightBottomMotor, shooter;
-    private DcMotor[] motors;
+    private DcMotorEx leftTopMotor, rightTopMotor, leftBottomMotor, rightBottomMotor, arm, transfer, intake, shooter;
+    private Servo claw, flicker, holder;
+    private DcMotorEx[] motors;
     private final double TPI = 570;
+    private ElapsedTime shooterTime;
     private int distance;
 
     @Override
-    public void runOpMode() { //test for now
+    public void runOpMode() throws InterruptedException  { //test for now
         initialize();
-        driveForward(1, 60);
-        //driveForward(1, -100);
-        //yeetRing();
-
+        driveForward(.25, 8);
+        yeetRing();
     }
 
-    public void initialize()
-    {
-        leftTopMotor = hardwareMap.dcMotor.get("leftTopMotor");
-        rightTopMotor = hardwareMap.dcMotor.get("rightTopMotor");
-        leftBottomMotor = hardwareMap.dcMotor.get("leftBottomMotor");
-        rightBottomMotor = hardwareMap.dcMotor.get("rightBottomMotor");
-        //shooter = hardwareMap.dcMotor.get("shooter");
-        motors = new DcMotor[]{leftTopMotor, rightTopMotor, leftBottomMotor, rightBottomMotor};
-        for(DcMotor motor : motors) {
+    public void initialize() {
+        //Even if I'm not using it, I have to map it because it is mapped on the bot.
+        leftTopMotor = (DcMotorEx) hardwareMap.dcMotor.get("leftFrontDrive");
+        leftBottomMotor = (DcMotorEx) hardwareMap.dcMotor.get("leftRearDrive");
+        rightTopMotor = (DcMotorEx) hardwareMap.dcMotor.get("rightFrontDrive");
+        rightBottomMotor = (DcMotorEx) hardwareMap.dcMotor.get("rightRearDrive");
+        arm = (DcMotorEx) hardwareMap.dcMotor.get("arm");
+        shooter = (DcMotorEx) hardwareMap.dcMotor.get("shooter");
+        transfer = (DcMotorEx) hardwareMap.dcMotor.get("transfer");
+        intake = (DcMotorEx) hardwareMap.dcMotor.get("intake");
+        claw = hardwareMap.servo.get("claw");
+        flicker = hardwareMap.servo.get("flicker");
+        holder = hardwareMap.servo.get("holder");
+        motors = new DcMotorEx[]{leftTopMotor, rightTopMotor, leftBottomMotor, rightBottomMotor};
+        for (DcMotorEx motor : motors) {
             motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            if(motor == leftTopMotor || motor == leftBottomMotor)
+            if (motor == leftTopMotor || motor == leftBottomMotor)
                 motor.setDirection(DcMotor.Direction.REVERSE);
             else
                 motor.setDirection(DcMotor.Direction.FORWARD);
@@ -42,77 +51,53 @@ public class AutoMain extends LinearOpMode {
     }
 
     /**
-     *
      * @param power
      * @param distance inchies so you will have to convert to tics
      */
-    public void driveForward(double power, int distance)
-    {
-        int travel = (int)(distance*TPI);
-        for(DcMotor motor : motors)
-        {
-            motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+    public void driveForward(double power, int distance) throws InterruptedException  {
+        int travel = (int) (distance * TPI);
+        double current = leftTopMotor.getCurrentPosition();
+        for (DcMotorEx motor : motors) {
             motor.setTargetPosition(travel);
-            motor.setPower(power);
-        }
-        while(driving(travel)){}
-        for(DcMotor motor : motors)
-        {
-            motor.setPower(0);
             motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        }
-    }
-
-    public void turnLeft(int power, int distance)
-    {
-        for(DcMotor motor : motors)
-        {
-            motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            if(motor == leftTopMotor || motor == leftBottomMotor)
-                motor.setDirection(DcMotorSimple.Direction.FORWARD);
-            motor.setTargetPosition(distance);
             motor.setPower(power);
         }
-        while(leftTopMotor.isBusy() && rightTopMotor.isBusy()){}
-        for(DcMotor motor : motors)
-        {
-            motor.setPower(0);
-            motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        //This is what checks if the motors are supposed to be still running.
+        while (driving(travel, current)) {
+            heartbeat();
         }
+        for (DcMotorEx motor : motors) {
+            motor.setPower(0);
+        }
+    }
+    public void turn()
+    {
+        double current = leftTopMotor.getCurrentPosition();
+        //public double currentAngle() {
+        //returns heading from gyro using unit circle values (-180 to 180 degrees, -pi to pi radians. We're using degrees)
+       // return imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
     }
 
-    public void turnRight(int power, int distance)
-    {
-        for(DcMotor motor : motors)
-        {
-            motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            if(motor == rightTopMotor || motor == rightBottomMotor)
-                motor.setDirection(DcMotorSimple.Direction.REVERSE);
-            motor.setTargetPosition(distance);
-            motor.setPower(power);
-        }
-        while(leftTopMotor.isBusy() && rightTopMotor.isBusy()){}
-        for(DcMotor motor : motors)
-        {
-            motor.setPower(0);
-            motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        }
-    }
-    public void yeetRing()
-    {
-        shooter.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        shooter.setTargetPosition(99999999);
-        shooter.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+    public void yeetRing() throws InterruptedException {
         shooter.setPower(.75);
-        while(shooter.isBusy()){}
+        shooterTime = new ElapsedTime();
+        while (shooterTime.milliseconds() <= 5000) {
+            heartbeat();
+        }
         shooter.setPower(0);
-        shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
-    public boolean driving(int distance)
-    {
-        if(leftTopMotor.getCurrentPosition() < distance)
-            return true;
-        return false;
+
+    //Checks positions has been moved
+    public boolean driving(int ticks, double startingPosition) {
+        return Math.abs(leftTopMotor.getCurrentPosition() - startingPosition) < ticks; // && Math.abs(rightTopMotor.getCurrentPosition() - startingPosition) < ticks && Math.abs(leftTopMotor.getCurrentPosition() - startingPosition) < ticks && Math.abs(rightTopMotor.getCurrentPosition() - startingPosition) < ticks;
+    }
+
+    public void heartbeat() throws InterruptedException {
+        //if opMode is stopped, will throw and catch an InterruptedException rather than resulting in red text and program crash on phone
+        if (!opModeIsActive()) {
+            throw new InterruptedException();
+        }
     }
 }
