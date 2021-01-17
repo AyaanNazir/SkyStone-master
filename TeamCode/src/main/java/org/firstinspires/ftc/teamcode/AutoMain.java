@@ -42,6 +42,7 @@ public class AutoMain extends LinearOpMode {
         motors = new DcMotorEx[]{leftTopMotor, rightTopMotor, leftBottomMotor, rightBottomMotor};
         for (DcMotorEx motor : motors) {
             motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             if (motor == leftTopMotor || motor == leftBottomMotor)
                 motor.setDirection(DcMotor.Direction.REVERSE);
             else
