@@ -91,7 +91,7 @@ public class AutoMain extends LinearOpMode {
 
     //Checks positions has been moved
     public boolean driving(int ticks, double startingPosition) {
-        return Math.abs(leftTopMotor.getCurrentPosition() - startingPosition) < ticks; // && Math.abs(rightTopMotor.getCurrentPosition() - startingPosition) < ticks && Math.abs(leftTopMotor.getCurrentPosition() - startingPosition) < ticks && Math.abs(rightTopMotor.getCurrentPosition() - startingPosition) < ticks;
+        return Math.abs(leftTopMotor.getCurrentPosition() - startingPosition) < ticks || Math.abs(rightTopMotor.getCurrentPosition() - startingPosition) < ticks || Math.abs(leftTopMotor.getCurrentPosition() - startingPosition) < ticks || Math.abs(rightTopMotor.getCurrentPosition() - startingPosition) < ticks;
     }
 
     public void heartbeat() throws InterruptedException {
