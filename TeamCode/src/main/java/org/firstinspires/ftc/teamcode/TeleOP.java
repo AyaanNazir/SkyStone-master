@@ -172,15 +172,15 @@ public class TeleOP extends OpMode {
     public void toggleIntake(){ // controls intake and transfer
         if(gamepad1.left_trigger > .499999){
             intake.setPower(1);
-            transfer.setPower(0.5);
+            transfer.setPower(1);
         }
         else if(gamepad1.left_bumper){
             intake.setPower(-1);
-            transfer.setPower(-0.5);
+            transfer.setPower(-1);
         }
         else{
-            intake.setPower(0);
-            transfer.setPower(0);
+            intake.setPower(1);
+            transfer.setPower(1);
         }
     }
 
@@ -221,11 +221,11 @@ public class TeleOP extends OpMode {
     public void toggleClaw(){ // toggles claw WORKS
 
 
-        if(gamepad1.b && (claw.getPosition() < 1) && checkB())
+        if(gamepad1.b && (claw.getPosition() < 1))
         {
             claw.setPosition(1);
         }
-        if(gamepad1.b && (claw.getPosition() > 0) && checkB())
+        if(gamepad1.b && (claw.getPosition() > 0))
         {
             claw.setPosition(0);
         }

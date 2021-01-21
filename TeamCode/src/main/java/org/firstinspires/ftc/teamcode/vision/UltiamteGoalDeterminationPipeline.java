@@ -1,5 +1,10 @@
 package org.firstinspires.ftc.teamcode.vision;
 
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.util.ElapsedTime;
+
+import org.firstinspires.ftc.teamcode.AutoMain;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
@@ -7,6 +12,8 @@ import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 import org.openftc.easyopencv.OpenCvPipeline;
+
+
 
 public class UltiamteGoalDeterminationPipeline extends OpenCvPipeline
 {
@@ -77,4 +84,6 @@ public class UltiamteGoalDeterminationPipeline extends OpenCvPipeline
     {
         return scenario;
     }
+
+    public int getAnalysis(){return avg;}
 }

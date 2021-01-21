@@ -10,6 +10,7 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvInternalCamera;
 import org.openftc.easyopencv.OpenCvPipeline;
 
+@TeleOp //test for now
 public class Camera extends LinearOpMode
 {
     OpenCvInternalCamera camera;
@@ -21,6 +22,7 @@ public class Camera extends LinearOpMode
         int monitorID = hardwareMap.appContext.getResources().getIdentifier("monitorID", "id", hardwareMap.appContext.getPackageName());
         camera = OpenCvCameraFactory.getInstance().createInternalCamera(OpenCvInternalCamera.CameraDirection.BACK, monitorID);
         pipeline = new UltiamteGoalDeterminationPipeline();
+        camera.setPipeline(pipeline);
         waitForStart();
     }
 }

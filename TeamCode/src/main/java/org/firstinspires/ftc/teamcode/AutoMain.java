@@ -8,6 +8,8 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.vision.Camera;
+
 import java.util.Timer;
 
 @Autonomous
@@ -15,14 +17,14 @@ public class AutoMain extends LinearOpMode {
     private DcMotorEx leftTopMotor, rightTopMotor, leftBottomMotor, rightBottomMotor, arm, transfer, intake, shooter;
     private Servo claw, flicker, holder;
     private DcMotorEx[] motors;
-    private final double TPI = 570;
+    private final double TPI = 537;
     private ElapsedTime shooterTime;
     private int distance;
 
     @Override
     public void runOpMode() throws InterruptedException  { //test for now
         initialize();
-        driveForward(.25, 8);
+        driveForward(.25, 3);
         yeetRing();
     }
 
@@ -42,6 +44,7 @@ public class AutoMain extends LinearOpMode {
         motors = new DcMotorEx[]{leftTopMotor, rightTopMotor, leftBottomMotor, rightBottomMotor};
         for (DcMotorEx motor : motors) {
             motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             if (motor == leftTopMotor || motor == leftBottomMotor)
                 motor.setDirection(DcMotor.Direction.REVERSE);
@@ -61,11 +64,12 @@ public class AutoMain extends LinearOpMode {
         for (DcMotorEx motor : motors) {
             motor.setTargetPosition(travel);
             motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            //motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             motor.setPower(power);
+            motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         }
         //This is what checks if the motors are supposed to be still running.
-        while (driving(travel, current)) {
+        while (leftTopMotor.isBusy() && rightTopMotor.isBusy() && leftBottomMotor.isBusy() && rightBottomMotor.isBusy()) {
             heartbeat();
         }
         for (DcMotorEx motor : motors) {
@@ -101,4 +105,5 @@ public class AutoMain extends LinearOpMode {
             throw new InterruptedException();
         }
     }
+
 }
