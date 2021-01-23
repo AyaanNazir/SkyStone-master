@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 /* modified by Sebastian Ochoa on 1/3/21 */
 //Modified by Aman Modi on 1/4/21
 //restructured by Seb on 1/5/21
+//As of 1/22/2021, TeleOP is fully functional. All changes made will be for power adjustments -Ayaan Nazir
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -171,16 +172,16 @@ public class TeleOP extends OpMode {
 
     public void toggleIntake(){ // controls intake and transfer
         if(gamepad1.left_trigger > .499999){
-            intake.setPower(1);
+            intake.setPower(-1);
             transfer.setPower(1);
         }
         else if(gamepad1.left_bumper){
-            intake.setPower(-1);
+            intake.setPower(1);
             transfer.setPower(-1);
         }
         else{
-            intake.setPower(1);
-            transfer.setPower(1);
+            intake.setPower(0);
+            transfer.setPower(0);
         }
     }
 

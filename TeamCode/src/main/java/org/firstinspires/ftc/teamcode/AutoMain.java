@@ -1,3 +1,4 @@
+//As of 1/22/2021, this class is open to everyone. Please comment up here if you edit code. -Ayaan Nazir
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -17,15 +18,21 @@ public class AutoMain extends LinearOpMode {
     private DcMotorEx leftTopMotor, rightTopMotor, leftBottomMotor, rightBottomMotor, arm, transfer, intake, shooter;
     private Servo claw, flicker, holder;
     private DcMotorEx[] motors;
-    private final double TPI = 537;
+    private final double TPI = 33.5625;
     private ElapsedTime shooterTime;
     private int distance;
 
     @Override
-    public void runOpMode() throws InterruptedException  { //test for now
+    public void runOpMode() throws InterruptedException  { //Load Zone B
         initialize();
-        driveForward(.25, 3);
-        yeetRing();
+        driveForward(.75, 84); //moves bot to Zone B
+        //set wobbler down using arm and claw //use servo stuff from teleop and elapsedtime to time it
+        driveForward(.75, -24); //parks bot on starting half line
+        //turn the robot backwards //90, 180, 270, or 360 degrees; in this case, 180
+        driveForward(.75, 12); //sets the bot up to start shooting
+        strafeLeft(.75, 6); //move bot to line up with shooter
+        //yeetRing(rings: 3); //need to revamp so parameters shoot for the amount of rings
+        strafeRight(.75, 6); //move bot to line up with rings
     }
 
     public void initialize() {
@@ -60,13 +67,11 @@ public class AutoMain extends LinearOpMode {
      */
     public void driveForward(double power, int distance) throws InterruptedException  {
         int travel = (int) (distance * TPI);
-        double current = leftTopMotor.getCurrentPosition();
         for (DcMotorEx motor : motors) {
             motor.setTargetPosition(travel);
             motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            //motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             motor.setPower(power);
-            motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            motor.setMode(DcMotor.RunMode.RUN_TO_POSITION); //THIS WORKS
         }
         //This is what checks if the motors are supposed to be still running.
         while (leftTopMotor.isBusy() && rightTopMotor.isBusy() && leftBottomMotor.isBusy() && rightBottomMotor.isBusy()) {
@@ -76,27 +81,59 @@ public class AutoMain extends LinearOpMode {
             motor.setPower(0);
         }
     }
-    public void turn()
-    {
-        double current = leftTopMotor.getCurrentPosition();
-        //public double currentAngle() {
-        //returns heading from gyro using unit circle values (-180 to 180 degrees, -pi to pi radians. We're using degrees)
-       // return imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
+
+    public void strafeLeft(double power, int distance) throws InterruptedException {
+        rightBottomMotor.setDirection(DcMotor.Direction.REVERSE);
+        leftTopMotor.setDirection(DcMotor.Direction.FORWARD);
+        int travel = (int) (distance * TPI);
+        for (DcMotorEx motor : motors) {
+            motor.setTargetPosition(travel);
+            motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            motor.setPower(power);
+            motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        }
+        //This is what checks if the motors are supposed to be still running.
+        while (leftTopMotor.isBusy() && rightTopMotor.isBusy() && leftBottomMotor.isBusy() && rightBottomMotor.isBusy()) {
+            heartbeat();
+        }
+        for (DcMotorEx motor : motors) {
+            motor.setPower(0);
+            if (motor == leftTopMotor || motor == leftBottomMotor)
+                motor.setDirection(DcMotor.Direction.REVERSE);
+            else
+                motor.setDirection(DcMotor.Direction.FORWARD);
+        }
     }
 
+    public void strafeRight(double power, int distance) throws InterruptedException {
+        rightTopMotor.setDirection(DcMotor.Direction.REVERSE);
+        leftBottomMotor.setDirection(DcMotor.Direction.FORWARD);
+        int travel = (int) (distance * TPI);
+        for (DcMotorEx motor : motors) {
+            motor.setTargetPosition(travel);
+            motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            motor.setPower(power);
+            motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        }
+        while (leftTopMotor.isBusy() && rightTopMotor.isBusy() && leftBottomMotor.isBusy() && rightBottomMotor.isBusy()) {
+            heartbeat();
+        }
+        for (DcMotorEx motor : motors) {
+            motor.setPower(0);
+            if (motor == leftTopMotor || motor == leftBottomMotor)
+                motor.setDirection(DcMotor.Direction.REVERSE);
+            else
+                motor.setDirection(DcMotor.Direction.FORWARD);
+        }
+    }
 
-    public void yeetRing() throws InterruptedException {
+    public void yeetRing() throws InterruptedException { //NEEDS TO BE REVAMPED TO INCLUDE FLICKER AND PARAMETER FOR RINGS
         shooter.setPower(.75);
         shooterTime = new ElapsedTime();
         while (shooterTime.milliseconds() <= 5000) {
             heartbeat();
         }
         shooter.setPower(0);
-    }
-
-    //Checks positions has been moved
-    public boolean driving(int ticks, double startingPosition) {
-        return Math.abs(leftTopMotor.getCurrentPosition() - startingPosition) < ticks || Math.abs(rightTopMotor.getCurrentPosition() - startingPosition) < ticks || Math.abs(leftTopMotor.getCurrentPosition() - startingPosition) < ticks || Math.abs(rightTopMotor.getCurrentPosition() - startingPosition) < ticks;
     }
 
     public void heartbeat() throws InterruptedException {
