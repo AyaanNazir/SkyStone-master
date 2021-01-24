@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode;
 /* modified by Sebastian Ochoa on 1/3/21 */
 //Modified by Aman Modi on 1/4/21
 //restructured by Seb on 1/5/21
-//As of 1/22/2021, TeleOP is fully functional. All changes made will be for power adjustments -Ayaan Nazir
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -28,7 +27,7 @@ public class TeleOP extends OpMode {
     private BNO055IMU imu;
     private ElapsedTime runtime;
     private double servo;
-    int shooterPower = 75;
+    double shooterPower = .4;
     boolean shotMode = false;
     ElapsedTime timer = new ElapsedTime();
     boolean servoMoving = false;
@@ -162,10 +161,10 @@ public class TeleOP extends OpMode {
 
     public void powerShot(){ // lowers flywheel speed
         if(gamepad1.right_bumper && !shotMode && checkRB()){
-            shooterPower = 60;
+            shooterPower = .45;
             shotMode = true;
         } else if(gamepad1.right_bumper && checkRB()){
-            shooterPower = 75;
+            shooterPower = .45;
             shotMode = false;
         }
     }
@@ -206,7 +205,7 @@ public class TeleOP extends OpMode {
         }
         else
         {
-            flicker.setPosition(1);
+            flicker.setPosition(.7);
         } // use this code if the above code refuses to work.
 
     }
@@ -222,11 +221,11 @@ public class TeleOP extends OpMode {
     public void toggleClaw(){ // toggles claw WORKS
 
 
-        if(gamepad1.b && (claw.getPosition() < 1))
+        if(gamepad1.b && (claw.getPosition() == 1))
         {
             claw.setPosition(1);
         }
-        if(gamepad1.b && (claw.getPosition() > 0))
+        if(gamepad1.b && (claw.getPosition() == 0))
         {
             claw.setPosition(0);
         }
@@ -246,14 +245,14 @@ public class TeleOP extends OpMode {
     public void armTravel(){ // controls arm WORKS
         if(gamepad1.x){
             arm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            arm.setPower(0.4);
+            arm.setPower(0.8);
         } else if (gamepad1.y){
             arm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            arm.setPower(-0.4);
+            arm.setPower(-0.8);
         } else {
             arm.setTargetPosition(arm.getCurrentPosition());
             arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            arm.setPower(0.4);
+            arm.setPower(0.8);
         }
     }
 

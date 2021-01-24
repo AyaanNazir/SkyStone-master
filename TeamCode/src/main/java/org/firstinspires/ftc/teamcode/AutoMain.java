@@ -1,4 +1,3 @@
-//As of 1/22/2021, this class is open to everyone. Please comment up here if you edit code. -Ayaan Nazir
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -9,7 +8,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.vision.Camera;
+//import org.firstinspires.ftc.teamcode.vision.Camera;
 
 import java.util.Timer;
 
@@ -25,14 +24,17 @@ public class AutoMain extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException  { //Load Zone B
         initialize();
-        driveForward(.75, 84); //moves bot to Zone B
-        //set wobbler down using arm and claw //use servo stuff from teleop and elapsedtime to time it
-        driveForward(.75, -24); //parks bot on starting half line
-        //turn the robot backwards //90, 180, 270, or 360 degrees; in this case, 180
-        driveForward(.75, 12); //sets the bot up to start shooting
-        strafeLeft(.75, 6); //move bot to line up with shooter
-        //yeetRing(rings: 3); //need to revamp so parameters shoot for the amount of rings
-        strafeRight(.75, 6); //move bot to line up with rings
+        //0 Void 1 Forward 2 Reverse
+        //moveBot(1, 1, 2, 2, -24, .60, true); //Forwwardd
+        //turnBot(2, 2, 1, 1, -24, .60); //Backward
+        //turnBot(2, 1, 2, 1, 30, .60); //Straf right
+        //turnBot(2, 1, 1, 2, 30, .60);
+        //Problem.. Find straf left.. Aman will check out the orevious line and try different combinations for straf left
+
+        //turnBot(1, 2, 1, 2,30,.60 )//Rotate
+        yeetRing();
+
+
     }
 
     public void initialize() {
@@ -65,26 +67,47 @@ public class AutoMain extends LinearOpMode {
      * @param power
      * @param distance inchies so you will have to convert to tics
      */
-    public void driveForward(double power, int distance) throws InterruptedException  {
-        int travel = (int) (distance * TPI);
-        for (DcMotorEx motor : motors) {
-            motor.setTargetPosition(travel);
-            motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            motor.setPower(power);
-            motor.setMode(DcMotor.RunMode.RUN_TO_POSITION); //THIS WORKS
-        }
-        //This is what checks if the motors are supposed to be still running.
-        while (leftTopMotor.isBusy() && rightTopMotor.isBusy() && leftBottomMotor.isBusy() && rightBottomMotor.isBusy()) {
-            heartbeat();
-        }
-        for (DcMotorEx motor : motors) {
-            motor.setPower(0);
-        }
-    }
 
-    public void strafeLeft(double power, int distance) throws InterruptedException {
-        rightBottomMotor.setDirection(DcMotor.Direction.REVERSE);
-        leftTopMotor.setDirection(DcMotor.Direction.FORWARD);
+    //This method accepts 6 variables:
+    // 4 of them are motors (leftTopMotor, leftBottomMotor, rightTopMotor, rightBottomMotor)
+    //These variables will accept 3 integers: 0 Void, 1 Forward, 2 Reverse
+    //It also accepts power and distance
+
+    //withIntake will be used later (work in progress)
+    public void moveBot(int leftT, int leftB, int rightT, int rightB, int distance, double power, boolean withIntake) throws InterruptedException{
+        if (leftT == 1) {
+            leftTopMotor.setDirection(DcMotor.Direction.FORWARD);
+        } else if(leftT == 2){
+            leftTopMotor.setDirection(DcMotor.Direction.REVERSE);
+        }
+
+        if (leftB == 1) {
+            leftBottomMotor.setDirection(DcMotor.Direction.FORWARD);
+        } else if(leftB == 2){
+            leftBottomMotor.setDirection(DcMotor.Direction.REVERSE);
+        }
+
+        if (rightT == 1) {
+            rightTopMotor.setDirection(DcMotor.Direction.FORWARD);
+        } else if(rightT == 2){
+            rightTopMotor.setDirection(DcMotor.Direction.REVERSE);
+        }
+
+        if (rightB == 1) {
+            rightBottomMotor.setDirection(DcMotor.Direction.FORWARD);
+        } else if(rightT == 2){
+            rightBottomMotor.setDirection(DcMotor.Direction.REVERSE);
+        }
+
+        /*if(withIntake) {
+            while (shooterTime.milliseconds() <= 5000) {
+                intake.setPower(.5);
+                transfer.setPower(1);
+                heartbeat();
+            }
+        }*/
+
+        //Moves the robot
         int travel = (int) (distance * TPI);
         for (DcMotorEx motor : motors) {
             motor.setTargetPosition(travel);
@@ -96,45 +119,27 @@ public class AutoMain extends LinearOpMode {
         while (leftTopMotor.isBusy() && rightTopMotor.isBusy() && leftBottomMotor.isBusy() && rightBottomMotor.isBusy()) {
             heartbeat();
         }
-        for (DcMotorEx motor : motors) {
-            motor.setPower(0);
-            if (motor == leftTopMotor || motor == leftBottomMotor)
-                motor.setDirection(DcMotor.Direction.REVERSE);
-            else
-                motor.setDirection(DcMotor.Direction.FORWARD);
-        }
-    }
-
-    public void strafeRight(double power, int distance) throws InterruptedException {
-        rightTopMotor.setDirection(DcMotor.Direction.REVERSE);
-        leftBottomMotor.setDirection(DcMotor.Direction.FORWARD);
-        int travel = (int) (distance * TPI);
-        for (DcMotorEx motor : motors) {
-            motor.setTargetPosition(travel);
-            motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            motor.setPower(power);
-            motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        }
-        while (leftTopMotor.isBusy() && rightTopMotor.isBusy() && leftBottomMotor.isBusy() && rightBottomMotor.isBusy()) {
-            heartbeat();
-        }
-        for (DcMotorEx motor : motors) {
-            motor.setPower(0);
-            if (motor == leftTopMotor || motor == leftBottomMotor)
-                motor.setDirection(DcMotor.Direction.REVERSE);
-            else
-                motor.setDirection(DcMotor.Direction.FORWARD);
-        }
+        intake.setPower(0);
+        transfer.setPower(0);
     }
 
     public void yeetRing() throws InterruptedException { //NEEDS TO BE REVAMPED TO INCLUDE FLICKER AND PARAMETER FOR RINGS
-        shooter.setPower(.75);
+        shooter.setPower(75);
         shooterTime = new ElapsedTime();
         while (shooterTime.milliseconds() <= 5000) {
+            intake.setPower(-.5);
+            transfer.setPower(1);
+            flicker.setPosition(1);
             heartbeat();
         }
+        flicker.setPosition(0);
+        intake.setPower(0);
+        transfer.setPower(0);
+        //flicker.setPosition(0);
         shooter.setPower(0);
     }
+
+
 
     public void heartbeat() throws InterruptedException {
         //if opMode is stopped, will throw and catch an InterruptedException rather than resulting in red text and program crash on phone
